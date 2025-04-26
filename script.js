@@ -49,7 +49,6 @@ function create() {
 
     player = this.physics.add.sprite(width / 2, height - 50, 'player').setCollideWorldBounds(true);
 
-    // Create group for falling cats
     cats = this.physics.add.group({
         defaultKey: 'cat',
         collideWorldBounds: true
