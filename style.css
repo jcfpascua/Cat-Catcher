@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #001f3f; /* dark blue background */
+    background-color: #001f3f;
     display: flex;
     align-items: center;
     justify-content: center;
