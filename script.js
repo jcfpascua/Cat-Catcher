@@ -37,28 +37,24 @@ function preload() {
         frameWidth: 32,
         frameHeight: 48
     });
-    this.load.image('cat', 'cat.png');
+    this.load.image('cat', 'assets/cat.png');
 }
 
 function create() {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    // Add background image and scale it
     bg = this.add.tileSprite(0, 0, width, height, 'bg').setOrigin(0, 0);
     bg.setScrollFactor(0);
 
-    // Create player
     player = this.physics.add.sprite(width / 2, height - 50, 'player').setCollideWorldBounds(true);
 
     // Create group for falling cats
     cats = this.physics.add.group({
         defaultKey: 'cat',
-        bounceY: 0.2,  // Can be set to 0 if you want no bounce
         collideWorldBounds: true
     });
 
-    // Initial cat spawn
     spawnCat(this);
 
     cursors = this.input.keyboard.createCursorKeys();
@@ -66,10 +62,8 @@ function create() {
     scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
     scoreText.setScrollFactor(0);
 
-    // Detect overlap between player and cats
     this.physics.add.overlap(player, cats, catchCat, null, this);
 
-    // Player animations
     this.anims.create({
         key: 'left',
         frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
@@ -90,14 +84,11 @@ function create() {
         repeat: -1
     });
 
-    // Set world bounds and player boundaries
     this.physics.world.setBounds(0, 0, width, height - 50);
     player.body.setBoundsRectangle(0, 0, width, height - 50);
 
-    // Set up resize event listener
     this.scale.on('resize', resize, this);
 
-    // Destroy cat when it reaches the bottom
     this.physics.world.on('worldbounds', function(body, up, down, left, right) {
         if (body.gameObject.texture.key === 'cat' && down) {
             body.gameObject.destroy();
@@ -110,7 +101,6 @@ function update() {
         return;
     }
 
-    // Player movement
     if (cursors.left.isDown) {
         player.setVelocityX(-300);
         player.anims.play('left', true);
@@ -122,7 +112,7 @@ function update() {
         player.anims.play('turn');
     }
 
-    // Spawn new cats randomly
+    // cat spawner
     if (Phaser.Math.Between(0, 100) < 2) {
         spawnCat(this);
     }
@@ -131,9 +121,9 @@ function update() {
 function spawnCat(scene) {
     const x = Phaser.Math.Between(50, scene.scale.width - 50);
     const cat = cats.create(x, 0, 'cat');
-    cat.setVelocityY(Phaser.Math.Between(100, 200)); // Set the fall speed of the cats
+    cat.setVelocityY(Phaser.Math.Between(100, 200)); // cat fall speed
     cat.setCollideWorldBounds(true);
-    cat.body.onWorldBounds = true; // Enable world bounds check for this cat
+    cat.body.onWorldBounds = true; // bounds check for cat
     cat.setScale(0.1);
 }
 
@@ -157,7 +147,7 @@ function resize(gameSize) {
     const height = gameSize.height;
 
     if (bg) {
-        bg.setSize(width, height); // Resize background to fit screen
+        bg.setSize(width, height); 
     }
 
     if (player) {
@@ -169,7 +159,7 @@ function resize(gameSize) {
     if (this.scene.isActive()) {
         const winText = this.scene.children.list.find(obj => obj.text === 'YOU WIN!');
         if (winText) {
-            winText.setPosition(width / 2, height / 2); // Adjust "YOU WIN!" text position on resize
+            winText.setPosition(width / 2, height / 2); 
         }
     }
 }
