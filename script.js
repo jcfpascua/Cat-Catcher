@@ -1,11 +1,8 @@
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
+    width: 800,
+    height: 600,
+    backgroundColor: '#001f3f', // dark blue base color
     physics: {
         default: 'arcade',
         arcade: {
@@ -16,8 +13,7 @@ const config = {
     scene: {
         preload,
         create,
-        update,
-        resize
+        update
     }
 };
 
@@ -44,8 +40,9 @@ function create() {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    bg = this.add.tileSprite(0, 0, width, height, 'bg').setOrigin(0, 0);
-    bg.setScrollFactor(0);
+    // Add the background image but DON'T clear backgroundColor
+    bg = this.add.image(width / 2, height / 2, 'bg');
+    bg.setDisplaySize(width, height);
 
     player = this.physics.add.sprite(width / 2, height - 50, 'player').setCollideWorldBounds(true);
 
@@ -59,7 +56,6 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
 
     scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
-    scoreText.setScrollFactor(0);
 
     this.physics.add.overlap(player, cats, catchCat, null, this);
 
@@ -86,8 +82,6 @@ function create() {
     this.physics.world.setBounds(0, 0, width, height - 50);
     player.body.setBoundsRectangle(0, 0, width, height - 50);
 
-    this.scale.on('resize', resize, this);
-
     this.physics.world.on('worldbounds', function(body, up, down, left, right) {
         if (body.gameObject.texture.key === 'cat' && down) {
             body.gameObject.destroy();
@@ -111,7 +105,6 @@ function update() {
         player.anims.play('turn');
     }
 
-    // cat spawner
     if (Phaser.Math.Between(0, 100) < 2) {
         spawnCat(this);
     }
@@ -120,9 +113,9 @@ function update() {
 function spawnCat(scene) {
     const x = Phaser.Math.Between(50, scene.scale.width - 50);
     const cat = cats.create(x, 0, 'cat');
-    cat.setVelocityY(Phaser.Math.Between(100, 200)); // cat fall speed
+    cat.setVelocityY(Phaser.Math.Between(100, 200));
     cat.setCollideWorldBounds(true);
-    cat.body.onWorldBounds = true; // bounds check for cat
+    cat.body.onWorldBounds = true;
     cat.setScale(0.1);
 }
 
@@ -130,6 +123,10 @@ function catchCat(player, cat) {
     cat.destroy();
     score += 1;
     scoreText.setText('Score: ' + score);
+    console.log('Score: ' + score);
+    if (score === 10) {
+        console.log('You win!');
+    }
 
     if (score >= 10 && !gameOver) {
         gameOver = true;
@@ -138,27 +135,5 @@ function catchCat(player, cat) {
             fontSize: '64px',
             fill: '#ffffff'
         }).setOrigin(0.5);
-    }
-}
-
-function resize(gameSize) {
-    const width = gameSize.width;
-    const height = gameSize.height;
-
-    if (bg) {
-        bg.setSize(width, height); 
-    }
-
-    if (player) {
-        player.setPosition(width / 2, height - 50);
-        this.physics.world.setBounds(0, 0, width, height - 50);
-        player.body.setBoundsRectangle(0, 0, width, height - 50);
-    }
-
-    if (this.scene.isActive()) {
-        const winText = this.scene.children.list.find(obj => obj.text === 'YOU WIN!');
-        if (winText) {
-            winText.setPosition(width / 2, height / 2); 
-        }
     }
 }
