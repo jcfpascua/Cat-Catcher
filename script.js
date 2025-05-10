@@ -1,8 +1,67 @@
+class BootScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'BootScene' });
+    }
+
+    preload() {
+        this.load.image('bg', 'https://labs.phaser.io/assets/skies/space3.png');
+    }
+
+    create() {
+        const { width, height } = this.scale;
+
+        this.add.image(width / 2, height / 2, 'bg').setDisplaySize(width, height);
+
+        this.add.text(width / 2, 100, 'Cat Catcher!', {
+            fontSize: '48px',
+            fill: '#ffffff'
+        }).setOrigin(0.5);
+
+        const playBtn = this.add.text(width / 2, 200, '▶ Play', {
+            fontSize: '32px',
+            fill: '#00ff00',
+            backgroundColor: '#000',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive();
+
+        playBtn.on('pointerdown', () => {
+            this.scene.start('MainScene');
+        });
+
+        const creditsBtn = this.add.text(width / 2, 270, '📜 Credits', {
+            fontSize: '28px',
+            fill: '#ffff00',
+            backgroundColor: '#000',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive();
+
+        creditsBtn.on('pointerdown', () => {
+            alert('Made by Jericho Cid Pascua.');
+            alert('A224');
+            alert('EMC');
+        });
+
+        const closeBtn = this.add.text(width / 2, 340, '❌ Close', {
+            fontSize: '28px',
+            fill: '#ff0000',
+            backgroundColor: '#000',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive();
+
+        closeBtn.on('pointerdown', () => {
+            const confirmClose = confirm('Are you sure you want to close the game?');
+            if (confirmClose) {
+                window.close();
+            }
+        });
+    }
+}
+
 const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: '#001f3f', 
+    backgroundColor: '#001f3f',
     physics: {
         default: 'arcade',
         arcade: {
@@ -10,11 +69,12 @@ const config = {
             debug: false
         }
     },
-    scene: {
+    scene: [BootScene, {
+        key: 'MainScene',
         preload,
         create,
         update
-    }
+    }]
 };
 
 const game = new Phaser.Game(config);
@@ -40,7 +100,6 @@ function create() {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    // Add the background image but DON'T clear backgroundColor
     bg = this.add.image(width / 2, height / 2, 'bg');
     bg.setDisplaySize(width, height);
 
@@ -82,7 +141,7 @@ function create() {
     this.physics.world.setBounds(0, 0, width, height - 50);
     player.body.setBoundsRectangle(0, 0, width, height - 50);
 
-    this.physics.world.on('worldbounds', function(body, up, down, left, right) {
+    this.physics.world.on('worldbounds', function (body, up, down, left, right) {
         if (body.gameObject.texture.key === 'cat' && down) {
             body.gameObject.destroy();
         }
@@ -124,16 +183,43 @@ function catchCat(player, cat) {
     score += 1;
     scoreText.setText('Score: ' + score);
     console.log('Score: ' + score);
-    if (score === 10) {
-        console.log('You win!');
-    }
 
     if (score >= 10 && !gameOver) {
         gameOver = true;
         this.physics.pause();
-        this.add.text(this.scale.width / 2, this.scale.height / 2, 'YOU WIN!', {
+
+        const { width, height } = this.scale;
+
+        this.add.text(width / 2, height / 2 - 60, 'YOU WIN!', {
             fontSize: '64px',
             fill: '#ffffff'
         }).setOrigin(0.5);
+
+        const restartBtn = this.add.text(width / 2, height / 2 + 10, '🔁 Restart', {
+            fontSize: '28px',
+            fill: '#00ff00',
+            backgroundColor: '#000',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive();
+
+        restartBtn.on('pointerdown', () => {
+            score = 0;
+            gameOver = false;
+            this.scene.restart();
+        });
+
+        const menuBtn = this.add.text(width / 2, height / 2 + 70, '🏠 Main Menu', {
+            fontSize: '28px',
+            fill: '#ffff00',
+            backgroundColor: '#000',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive();
+
+        menuBtn.on('pointerdown', () => {
+            score = 0;
+            gameOver = false;
+            this.scene.start('BootScene');
+        });
     }
 }
+
